@@ -17,24 +17,31 @@ jobs:
 
       - name: setup node.js
         uses: actions/setup-node@v4
+        with:
+          node-version: '22'
 
-      # package.jsonの内容でパッケージインストール
+      # パッケージインストール
       - name: setup app env
         run: npm ci
 
       # ビルド実行、静的リソースを作る
       - name: build static resources
         env:
+          CI: true
           BASE_PATH: "/${{ github.event.repository.name }}"
         run: npm run build
 
-      # GitHub Pagesにデプロイする
-      - uses: actions/upload-artifact@v4
+      # アーティファクトのアップロード
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
         with:
-          path: build
+          name: build
+          path: ./dist
+
+      # GitHub Pagesにデプロイする
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: build
+          path: ./dist
 
   # for Deploy
   deploy:
